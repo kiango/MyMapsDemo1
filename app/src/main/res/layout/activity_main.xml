@@ -34,7 +34,8 @@
         android:onClick="onClick_goto_city"
         android:layout_above="@+id/map"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:textSize="12sp" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -46,7 +47,8 @@
         android:onClick="onClick_zoomCPH"
         android:layout_above="@+id/map"
         android:layout_toRightOf="@+id/btn_skovlunde"
-        android:layout_toEndOf="@+id/btn_skovlunde" />
+        android:layout_toEndOf="@+id/btn_skovlunde"
+        android:textSize="12sp" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -58,7 +60,8 @@
         android:onClick="onClick_showSatellite"
         android:layout_above="@+id/map"
         android:layout_toRightOf="@+id/btn_zoomCph"
-        android:layout_toEndOf="@+id/btn_zoomCph" />
+        android:layout_toEndOf="@+id/btn_zoomCph"
+        android:textSize="12sp" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -70,7 +73,8 @@
         android:onClick="onClick_distanceBetween2points"
         android:layout_above="@+id/map"
         android:layout_toRightOf="@+id/btn_satellite"
-        android:layout_toEndOf="@+id/btn_satellite" />
+        android:layout_toEndOf="@+id/btn_satellite"
+        android:textSize="12sp" />
 
 
 </RelativeLayout>

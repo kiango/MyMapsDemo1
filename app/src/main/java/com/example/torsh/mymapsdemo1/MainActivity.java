@@ -1,5 +1,11 @@
 package com.example.torsh.mymapsdemo1;
 
+/*
+* Class for google map utilities
+ * zoom in/out, distance calculations, camera angle and movement
+*
+* */
+
 import android.location.Location;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -22,18 +28,20 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.HashMap;
 
-//ToDo: calculate distance between 2 positions
+
 public class MainActivity extends ActionBarActivity implements OnMapReadyCallback{
 
     private final LatLng LOCATION_COPENHAGEN = new LatLng(55.67, 12.56);
     private final LatLng LOCATION_SKOVLUNDE = new LatLng(55.713597, 12.398044);
     private GoogleMap googleMap;
     private Marker marker;
-    private HashMap hashMap = new HashMap<Marker, String>(); // for storage of marker id's
+    private HashMap<Marker, String> hashMap; //= new HashMap<Marker, String>(); // for storage of marker id's
+
     private int clickCount = 0;
     private double position1Lat, position1Lng, position2Lat, position2Lng;
-    private Button buttonMapType;
+    private Button buttonMapType, buttonMapReady;
 
+//ToDo: fix loss of current state by rotation; make a horizontal fragment layout
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,17 +49,19 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_main);
 
         buttonMapType = (Button) findViewById(R.id.btn_satellite);
+        buttonMapReady = (Button) findViewById(R.id.btn_zoomCph);
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
     }
+
+
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
 
         googleMap.setMyLocationEnabled(true);
+
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LOCATION_COPENHAGEN, 13));
         marker = googleMap.addMarker(
                 new MarkerOptions()
@@ -59,13 +69,15 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                         .snippet("Lat: 55.67 Lon:12.56")
                         .position(LOCATION_COPENHAGEN));
 
+        hashMap = new HashMap<>();
         hashMap.put(marker, "cph");
-        String marker_Id = String.valueOf(hashMap.get(marker));
 
         this.googleMap = googleMap; //initialise googleMap
     }
 
 
+
+    //ToDo: calculate accumulated distance for multiple connected lines
     public void onClick_distanceBetween2points(View v){
         if ( !hashMap.isEmpty() )
             googleMap.clear();
@@ -90,11 +102,12 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
                 showPointedPosition(latLng);
                 if ( clickCount == 2 )
-                calculateDistBetween2points();
+                    calculateDistBetween2points();
             }
         });
-
     }
+
+
 
     public void showPointedPosition(LatLng latLng){
         // create marker
@@ -113,9 +126,11 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         if ( clickCount > 2 ) {
             googleMap.clear();
             clickCount = 0;
-            Toast.makeText(getBaseContext(), "try again", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), "Map Cleared", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 
     // calculate distance between 2 tapped points on the map
     public float calculateDistBetween2points(){
@@ -128,20 +143,22 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         return dist[0];
     }
 
+
+
     public void onClick_goto_city(View v){
-        //LatLng skovlunde = new LatLng();
+
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(LOCATION_SKOVLUNDE);
+
         googleMap.animateCamera(cameraUpdate);
         googleMap.addMarker( new MarkerOptions()
-        .title("Skovlunde")
-        .snippet("Lat:55.713597, Lon:12.398044")
-        .position(LOCATION_SKOVLUNDE));
+                .title("Skovlunde")
+                .snippet("Lat:55.713597, Lon:12.398044")
+                .position(LOCATION_SKOVLUNDE));
     }
 
-// Todo: toggling zoomCph / zoomOut to onMapReady settings
-    public void onClick_zoomCPH(View v){
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LOCATION_COPENHAGEN, 13));
+    //ToDo: code repeat / refactoring; After 
+    public void onClick_zoomCPH(View v){
 
         // Flat markers will rotate when the map is rotated,
         // and change perspective when the map is tilted.
@@ -151,20 +168,77 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                 .flat(true)
                 .rotation(245));
 
-        CameraPosition cameraPosition = CameraPosition.builder()
-                .target(LOCATION_COPENHAGEN)
-                .zoom(18) // close zoom level
-                .bearing(90) // 90 changes orientation of camera to east
-                .tilt(30) // set the tilt of camera to 30 degrees
-                .build();
+        float zoomLevel_current = googleMap.getCameraPosition().zoom;
+        if ( zoomLevel_current <= 13.0 ) {
 
-        // Animate the change in camera view over 2 seconds
-        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition),
-                4000, null);
+            CameraPosition cameraPosition = CameraPosition.builder()
+                    .target(LOCATION_COPENHAGEN)
+                    .zoom(18) // close zoom level
+                    .bearing(90) // 90 changes orientation of camera to east
+                    .tilt(30) // set the tilt of camera to 30 degrees
+                    .build();
+
+            // Animate the change in camera view over 4 seconds
+            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition),
+                    4000, null);
+
+            buttonMapReady.setText("Reset");
+        }
+
+
+        buttonMapReady.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                float zoomLevel_current = googleMap.getCameraPosition().zoom;
+                if ( zoomLevel_current <= 13.0 ) {
+
+                    marker = googleMap.addMarker(
+                            new MarkerOptions()
+                                    .title("CPH city population: 579,513")
+                                    .snippet("Lat: 55.67 Lon:12.56")
+                                    .position(LOCATION_COPENHAGEN));
+
+                    CameraPosition cameraPosition = CameraPosition.builder()
+                            .target(LOCATION_COPENHAGEN)
+                            .zoom(18) // close zoom level
+                            .bearing(90) // 90 changes orientation of camera to east
+                            .tilt(30) // set the tilt of camera to 30 degrees
+                            .build();
+
+                    // Animate the change in camera view over 4 seconds
+                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition),
+                            4000, null);
+
+                    buttonMapReady.setText("Reset");
+
+                } else {
+
+                    CameraPosition cameraPositionReset = CameraPosition.builder()
+                            .target(LOCATION_COPENHAGEN)
+                            .zoom(13)
+                            .bearing(0)
+                            .tilt(0)
+                            .build();
+
+                    // Animate the change in camera view over 4 seconds
+                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPositionReset),
+                            4000, null);
+
+                    buttonMapReady.setText("ZoomCPH");
+                }
+                //Toast.makeText(getBaseContext(), String.valueOf(googleMap.getCameraPosition().zoom), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-//ToDo: try this toggling without setOnClickListener
+
     public void onClick_showSatellite(View v){
+
+        if ( googleMap.getMapType() == 1 ) {
+            googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            buttonMapType.setText("Normal");
+        }
 
         buttonMapType.setOnClickListener( new View.OnClickListener() {
             @Override
@@ -185,19 +259,11 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public void addLineBetween2points(){
         // Polylines for marking paths and routes on the map.
         googleMap.addPolyline(new PolylineOptions().geodesic(true)
-                .add(new LatLng(position1Lat, position1Lng))
-                .add( new LatLng(position2Lat, position2Lng))
-                .width(3)
-//                .add(new LatLng(55.67, 12.56))  // Copenhagen
-//                .add(new LatLng(55.661187, 12.516758))  // Valby
-//                .add(new LatLng(55.713597, 12.398044))  // Skovlunde
+                        .add(new LatLng(position1Lat, position1Lng))
+                        .add( new LatLng(position2Lat, position2Lng))
+                        .width(3)
         );
     }
-
-
-
-
-
 
 
 
