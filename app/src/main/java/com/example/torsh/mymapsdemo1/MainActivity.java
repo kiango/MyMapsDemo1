@@ -157,7 +157,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     }
 
 
-    //ToDo: code repeat / refactoring; After 
+    //ToDo: code repeat / refactoring; After distance clearing markers the ZoomCPH don't recreate the CPH marker
     public void onClick_zoomCPH(View v){
 
         // Flat markers will rotate when the map is rotated,
