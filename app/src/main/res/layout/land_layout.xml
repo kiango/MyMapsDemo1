@@ -8,16 +8,10 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/textView1"
-        android:text="@string/hello_world"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
     <fragment
         android:id="@+id/map"
-        android:layout_width="match_parent"
-        android:layout_height="420dp"
+        android:layout_width="480dp"
+        android:layout_height="match_parent"
         android:name="com.google.android.gms.maps.MapFragment"
         tools:layout="@layout/abc_action_menu_layout"
         android:layout_alignParentBottom="true"
@@ -27,89 +21,91 @@
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:textAllCaps="false"
         android:text="Skovlunde"
         android:id="@+id/btn_skovlunde"
         android:onClick="onClick_goto_city"
-        android:layout_above="@+id/map"
+        android:textSize="12sp"
+        android:layout_above="@+id/btn_zoomCph"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:textSize="12sp" />
+        android:layout_alignParentStart="true" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:textAllCaps="false"
         android:text="ZoomCPH"
         android:id="@+id/btn_zoomCph"
         android:onClick="onClick_zoomCPH"
-        android:layout_above="@+id/map"
-        android:layout_toRightOf="@+id/btn_skovlunde"
-        android:layout_toEndOf="@+id/btn_skovlunde"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        android:layout_above="@+id/btn_satellite"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:textAllCaps="false"
         android:text="Satellite"
         android:id="@+id/btn_satellite"
         android:onClick="onClick_showSatellite"
-        android:layout_above="@+id/map"
-        android:layout_toRightOf="@+id/btn_zoomCph"
-        android:layout_toEndOf="@+id/btn_zoomCph"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        android:layout_above="@+id/btn_end"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:textAllCaps="false"
         android:text="Distance"
         android:id="@+id/btn_end"
         android:onClick="onClick_distanceBetween2points"
-        android:layout_above="@+id/map"
-        android:layout_toRightOf="@+id/btn_satellite"
-        android:layout_toEndOf="@+id/btn_satellite"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <EditText
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:id="@+id/edit_lat"
-        android:hint="enter lattitude xx.xxxx"
-        android:textSize="12sp"
+        android:textSize="10sp"
         android:inputType="numberDecimal"
-        android:layout_below="@+id/textView1"
-        android:layout_toLeftOf="@+id/edit_lon"
-        android:layout_toStartOf="@+id/edit_lon" />
+        android:ems="5"
+        android:hint="lat 00.0000"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <EditText
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/edit_lon"
-        android:hint="enter longitude xx.xxx"
-        android:textSize="12sp"
+        android:layout_height="30dp"
         android:inputType="numberDecimal"
-        android:layout_below="@+id/textView1"
-        android:layout_toLeftOf="@+id/btn_go"
-        android:layout_toStartOf="@+id/btn_go" />
+        android:ems="5"
+        android:id="@+id/edit_lon"
+        android:textSize="10sp"
+        android:hint="lon 00.0000"
+        android:layout_below="@+id/edit_lat"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAllCaps="false"
+        android:layout_height="40dp"
         android:text="Go"
-        android:onClick="onClick_goto_location"
         android:textSize="12sp"
         android:id="@+id/btn_go"
-        android:layout_alignTop="@+id/edit_lon"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:onClick="onClick_goto_location"
+        android:textAllCaps="false"
+        android:layout_above="@+id/btn_skovlunde"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 
 </RelativeLayout>

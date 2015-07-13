@@ -1,18 +1,27 @@
 package com.example.torsh.mymapsdemo1;
 
 /*
-* Class for google map utilities
- * zoom in/out, distance calculations, camera angle and movement
+* -- Class for google map utilities --
+*
+* zoom in/out,
+* distance calculation,
+* camera angle and movement
+* point info popup by tapping the markers
+* zoom function retained after configuration change
 *
 * */
 
+import android.content.Intent;
+import android.content.res.Configuration;
 import android.location.Location;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -39,22 +48,32 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     private int clickCount = 0;
     private double position1Lat, position1Lng, position2Lat, position2Lng;
-    private Button buttonMapType, buttonMapReady;
+    private Button buttonMapType, buttonMapReady, buttonGo;
+    private EditText lat_value, lon_value;
 
-//ToDo: fix loss of current state by rotation; make a horizontal fragment layout
+    CameraPosition currentCameraPosition;
+    Bundle savedInstanceState;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+            setContentView(R.layout.activity_main);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+            setContentView(R.layout.land_layout);
+
 
         buttonMapType = (Button) findViewById(R.id.btn_satellite);
         buttonMapReady = (Button) findViewById(R.id.btn_zoomCph);
 
+
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-    }
 
+        this.savedInstanceState = savedInstanceState;
+    }
 
 
     @Override
@@ -62,12 +81,22 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
         googleMap.setMyLocationEnabled(true);
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LOCATION_COPENHAGEN, 13));
+        if (savedInstanceState == null){
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LOCATION_COPENHAGEN, 13));
+        }
+
+        if (savedInstanceState != null){
+            currentCameraPosition = savedInstanceState.getParcelable("currentCameraPosition");
+            googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(currentCameraPosition));
+        }
+
+
         marker = googleMap.addMarker(
                 new MarkerOptions()
                         .title("CPH city population: 579,513")
                         .snippet("Lat: 55.67 Lon:12.56")
                         .position(LOCATION_COPENHAGEN));
+
 
         hashMap = new HashMap<>();
         hashMap.put(marker, "cph");
@@ -75,7 +104,32 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         this.googleMap = googleMap; //initialise googleMap
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
 
+        currentCameraPosition = googleMap.getCameraPosition();
+        outState.putParcelable("currentCameraPosition", currentCameraPosition);
+        //Toast.makeText(getBaseContext(), "iwasbundle", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        currentCameraPosition = savedInstanceState.getParcelable("currentCameraPosition");
+        //Toast.makeText(getBaseContext(), currentCameraPosition.toString(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
 
     //ToDo: calculate accumulated distance for multiple connected lines
     public void onClick_distanceBetween2points(View v){
@@ -84,24 +138,27 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
         Toast.makeText(getBaseContext(), "Tap 2 points on the map", Toast.LENGTH_SHORT).show();
 
-        googleMap.setOnMapClickListener( new GoogleMap.OnMapClickListener() {
+        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
 
                 clickCount++;
                 //Toast.makeText(getBaseContext(), String.valueOf(clickCount), Toast.LENGTH_SHORT).show();
-                if ( clickCount == 1 ){
+                if (clickCount == 1) {
                     position1Lat = latLng.latitude;
                     position1Lng = latLng.longitude;
-                } else if ( clickCount == 2) {
+                } else if (clickCount == 2) {
                     position2Lat = latLng.latitude;
                     position2Lng = latLng.longitude;
                 } else {
-                    position1Lng = 0; position1Lat = 0; position2Lat = 0; position2Lng = 0;
+                    position1Lng = 0;
+                    position1Lat = 0;
+                    position2Lat = 0;
+                    position2Lng = 0;
                 }
 
                 showPointedPosition(latLng);
-                if ( clickCount == 2 )
+                if (clickCount == 2)
                     calculateDistBetween2points();
             }
         });
@@ -144,20 +201,59 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     }
 
 
+    public void onClick_goto_location(View v){
+        // ToDo: change input format of EditText to text input for including ' - '
+        buttonGo = (Button) findViewById(R.id.btn_go);
+        lat_value = (EditText) findViewById(R.id.edit_lat);
+        lon_value = (EditText) findViewById(R.id.edit_lon);
+
+        String lat_str = lat_value.getText().toString();
+        String lon_str = lon_value.getText().toString();
+
+
+        if ( lat_str.equals("") || lon_str.equals(""))
+            Toast.makeText(getBaseContext(), "Invalid input !", Toast.LENGTH_SHORT).show();
+
+        double lat = Double.parseDouble(lat_str);
+        double lon = Double.parseDouble(lon_str);
+
+        if ( lat > 90.0 || lat < -90.0 || lon > 180.0 || lon < -180.0)
+            Toast.makeText(getBaseContext(), "Invalid coordinates !", Toast.LENGTH_SHORT).show();
+
+        //ToDo: continue input validation by regex and lat-lon range restriction
+        // ^-{0,1}[0-9]{0,2}[.][0-9]{0,4} regex for: lat: -90.2909
+        // ^-{0,1}[0-9]{1}[0-9]{0,2}[.][0-9]{0,4} regex for lon: -222.0909
+        // after regex the number values must be validated for range and trim 0's in the start og number
+
+
+        //double la = 45.437; double lo = 15.518;
+
+        //final LatLng LOCATION_ELSE = new LatLng(latt, lngg);
+
+        //CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(LOCATION_ELSE);
+
+//        googleMap.animateCamera(cameraUpdate, 10000, null);
+//        googleMap.addMarker(new MarkerOptions()
+//                .title("Your location")
+//                .snippet("Lat:" + String.valueOf(latt) + "Lon: " + String.valueOf(lngg))
+//                .position(LOCATION_ELSE));
+    }
+
+
 
     public void onClick_goto_city(View v){
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(LOCATION_SKOVLUNDE);
 
         googleMap.animateCamera(cameraUpdate);
-        googleMap.addMarker( new MarkerOptions()
+        googleMap.addMarker(new MarkerOptions()
                 .title("Skovlunde")
                 .snippet("Lat:55.713597, Lon:12.398044")
                 .position(LOCATION_SKOVLUNDE));
     }
 
 
-    //ToDo: code repeat / refactoring; After distance clearing markers the ZoomCPH don't recreate the CPH marker
+    //ToDo: code repeat / refactoring;
     public void onClick_zoomCPH(View v){
 
         // Flat markers will rotate when the map is rotated,
@@ -237,7 +333,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
         if ( googleMap.getMapType() == 1 ) {
             googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-            buttonMapType.setText("Normal");
+            buttonMapType.setText("Map");
         }
 
         buttonMapType.setOnClickListener( new View.OnClickListener() {
@@ -246,7 +342,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
                 if ( googleMap.getMapType() == 1 ){
                     googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                    buttonMapType.setText("Normal");
+                    buttonMapType.setText("Map");
                 } else {
                     googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     buttonMapType.setText("Satellite");
