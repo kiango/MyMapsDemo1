@@ -104,6 +104,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         this.googleMap = googleMap; //initialise googleMap
     }
 
+    //ToDo: retain markers after config change
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -202,7 +203,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
 
     public void onClick_goto_location(View v){
-        // ToDo: change input format of EditText to text input for including ' - '
+
+
         buttonGo = (Button) findViewById(R.id.btn_go);
         lat_value = (EditText) findViewById(R.id.edit_lat);
         lon_value = (EditText) findViewById(R.id.edit_lon);
@@ -210,33 +212,20 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         String lat_str = lat_value.getText().toString();
         String lon_str = lon_value.getText().toString();
 
+        LatLngValidator latLngValidator = new LatLngValidator();
+        if (!latLngValidator.validateLatLng(lat_str, lon_str)) {
+            Toast.makeText(getBaseContext(), latLngValidator.getStatusMessage(), Toast.LENGTH_SHORT).show();
+        } else {
+            final LatLng LOCATION_ELSE = new LatLng(latLngValidator.getLat(), latLngValidator.getLon());
 
-        if ( lat_str.equals("") || lon_str.equals(""))
-            Toast.makeText(getBaseContext(), "Invalid input !", Toast.LENGTH_SHORT).show();
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(LOCATION_ELSE, 8);
 
-        double lat = Double.parseDouble(lat_str);
-        double lon = Double.parseDouble(lon_str);
-
-        if ( lat > 90.0 || lat < -90.0 || lon > 180.0 || lon < -180.0)
-            Toast.makeText(getBaseContext(), "Invalid coordinates !", Toast.LENGTH_SHORT).show();
-
-        //ToDo: continue input validation by regex and lat-lon range restriction
-        // ^-{0,1}[0-9]{0,2}[.][0-9]{0,4} regex for: lat: -90.2909
-        // ^-{0,1}[0-9]{1}[0-9]{0,2}[.][0-9]{0,4} regex for lon: -222.0909
-        // after regex the number values must be validated for range and trim 0's in the start og number
-
-
-        //double la = 45.437; double lo = 15.518;
-
-        //final LatLng LOCATION_ELSE = new LatLng(latt, lngg);
-
-        //CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(LOCATION_ELSE);
-
-//        googleMap.animateCamera(cameraUpdate, 10000, null);
-//        googleMap.addMarker(new MarkerOptions()
-//                .title("Your location")
-//                .snippet("Lat:" + String.valueOf(latt) + "Lon: " + String.valueOf(lngg))
-//                .position(LOCATION_ELSE));
+            googleMap.animateCamera(cameraUpdate, 18000, null);
+            googleMap.addMarker(new MarkerOptions()
+                .title("Your location")
+                .snippet("Lat: " + lat_str +" Lon: " + lon_str )
+                .position(LOCATION_ELSE));
+        }
     }
 
 
@@ -276,7 +265,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
             // Animate the change in camera view over 4 seconds
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition),
-                    4000, null);
+                    10000, null);
 
             buttonMapReady.setText("Reset");
         }
@@ -304,7 +293,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
                     // Animate the change in camera view over 4 seconds
                     googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition),
-                            4000, null);
+                            10000, null);
 
                     buttonMapReady.setText("Reset");
 
@@ -319,7 +308,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
                     // Animate the change in camera view over 4 seconds
                     googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPositionReset),
-                            4000, null);
+                            10000, null);
 
                     buttonMapReady.setText("ZoomCPH");
                 }

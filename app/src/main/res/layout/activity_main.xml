@@ -82,7 +82,7 @@
         android:id="@+id/edit_lat"
         android:hint="enter lattitude xx.xxxx"
         android:textSize="12sp"
-        android:inputType="numberDecimal"
+        android:inputType="textShortMessage"
         android:layout_below="@+id/textView1"
         android:layout_toLeftOf="@+id/edit_lon"
         android:layout_toStartOf="@+id/edit_lon" />
@@ -93,7 +93,7 @@
         android:id="@+id/edit_lon"
         android:hint="enter longitude xx.xxx"
         android:textSize="12sp"
-        android:inputType="numberDecimal"
+        android:inputType="textShortMessage"
         android:layout_below="@+id/textView1"
         android:layout_toLeftOf="@+id/btn_go"
         android:layout_toStartOf="@+id/btn_go" />
