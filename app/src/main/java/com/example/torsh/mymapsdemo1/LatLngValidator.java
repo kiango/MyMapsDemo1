@@ -5,9 +5,7 @@ import android.widget.Toast;
 /**
  * Created by torsh on 7/14/15.
  *
- * Validation utility for the geographic coordinates
- *
- * trim of leading zeros of the inputs can be added to validation
+ * Validation class for the geographic coordinates
  *
  */
 
